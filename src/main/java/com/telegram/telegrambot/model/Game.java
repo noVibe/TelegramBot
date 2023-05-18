@@ -10,7 +10,7 @@ public class Game {
     public int calculateAndSetAttempts(int range) {
         guessedNumber = new Random().nextInt(range) + 1;
         attempts = (int) Math.ceil(Math.log(range) / Math.log(2));
-        return attempts;
+        return attempts == 0 ? 1 : attempts;
     }
 
     public String getResultOfGuess(int number) {
