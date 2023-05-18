@@ -3,14 +3,20 @@ package com.telegram.telegrambot.model;
 import java.util.Random;
 
 public class Game {
-    private Integer attempts;
+    private int attempts;
+    private boolean areAttemptsSet;
     private int guessedNumber;
     private boolean isOver = false;
 
     public int calculateAndSetAttempts(int range) {
-        guessedNumber = new Random().nextInt(range) + 1;
-        attempts = (int) Math.ceil(Math.log(range) / Math.log(2));
-        return attempts == 0 ? 1 : attempts;
+        guessedNumber = new Random().nextInt(1, range == Integer.MAX_VALUE ? range : range + 1);
+        attempts = range <= 2 ? range : (int) Math.ceil(Math.log(range) / Math.log(2));
+        areAttemptsSet = true;
+        return attempts;
+    }
+
+    public boolean areAttemptsSet() {
+        return areAttemptsSet;
     }
 
     public String getResultOfGuess(int number) {
@@ -27,20 +33,17 @@ public class Game {
         return message;
     }
 
+    public boolean isOver() {
+        isOver = attempts == 0;
+        return isOver;
+    }
+
     private String attemptsMessage() {
-        if (attempts != 0) {
+        if (!isOver()) {
             return attempts + " attempts left.";
         } else {
-            isOver = true;
             return "No attempts left. You lost!";
         }
     }
 
-    public boolean isOver() {
-        return isOver;
-    }
-
-    public Integer getAttempts() {
-        return attempts;
-    }
 }

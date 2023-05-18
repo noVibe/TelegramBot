@@ -42,27 +42,22 @@ public class GameService {
     }
 
     private String playGameAndGetProgressMessage(String id, String number) {
-
         String progressMessage;
-
         if (!hasActiveGame(id)) {
-            progressMessage = "Make sure you've started the game via /start";
+            return "Make sure you've started the game via /start";
+        }
+        int num = validateInput(number);
 
+        Game game = activeGames.get(id);
+        if (!game.areAttemptsSet()) {
+            progressMessage = "Lets' go! You got " + game.calculateAndSetAttempts(num) + " attempts. Make a guess";
         } else {
-            int num = validateInput(number);
-
-            Game game = activeGames.get(id);
-            if (game.getAttempts() == null) {
-                progressMessage = "Lets' go! You got " + game.calculateAndSetAttempts(num) + " attempts. Make a guess";
-            } else {
-                progressMessage = game.getResultOfGuess(num);
-                if (game.isOver()) {
-                    activeGames.remove(id);
-                }
+            progressMessage = game.getResultOfGuess(num);
+            if (game.isOver()) {
+                activeGames.remove(id);
             }
         }
         return progressMessage;
-
     }
 
 
