@@ -34,6 +34,7 @@ public class GameServiceAspect {
             result = (String) joinPoint.proceed();
         } catch (Throwable e) {
             result = "Invalid input! Try /help if you stuck";
+            logger.info(e.getMessage());
         }
         logger.info(String.format("Answer for %s:\n %s", username, result));
         return result;

@@ -13,7 +13,7 @@ public class Game {
     }
 
     public boolean areAttemptsSet() {
-        return attempts == null;
+        return attempts != null;
     }
 
     public String getResultOfGuess(int number) {
