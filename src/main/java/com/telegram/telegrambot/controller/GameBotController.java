@@ -23,7 +23,6 @@ public class GameBotController extends TelegramLongPollingBot {
         String message = gameService.makeAnswer(update);
         sendMessage(id, message);
     }
-
     private void sendMessage(String id, String text) {
         SendMessage message = new SendMessage(id, text);
         try {
@@ -37,5 +36,6 @@ public class GameBotController extends TelegramLongPollingBot {
     public String getBotUsername() {
         return "MyFuckingShitBot";
     }
+
 
 }
