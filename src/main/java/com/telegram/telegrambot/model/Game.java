@@ -5,12 +5,15 @@ import java.util.Random;
 public class Game {
     private Integer attempts;
     private int guessedNumber;
-    private boolean isOver = false;
 
     public int calculateAndSetAttempts(int range) {
-        guessedNumber = new Random().nextInt(range) + 1;
-        attempts = (int) Math.ceil(Math.log(range) / Math.log(2));
+        guessedNumber = new Random().nextInt(1, range == Integer.MAX_VALUE ? range : range + 1);
+        attempts = range <= 2 ? range : (int) Math.ceil(Math.log(range) / Math.log(2));
         return attempts;
+    }
+
+    public boolean areAttemptsSet() {
+        return attempts == null;
     }
 
     public String getResultOfGuess(int number) {
@@ -22,25 +25,21 @@ public class Game {
             message = "Guessed number is smaller!\n" + attemptsMessage();
         } else {
             message = "You guessed! It's " + guessedNumber + "!";
-            isOver = true;
+            attempts = 0;
         }
         return message;
     }
 
+    public boolean isOver() {
+        return attempts == 0;
+    }
+
     private String attemptsMessage() {
-        if (attempts != 0) {
+        if (!isOver()) {
             return attempts + " attempts left.";
         } else {
-            isOver = true;
-            return "No attempts left. You lost!";
+            return "No attempts left. You lost! Guessed number was " + guessedNumber;
         }
     }
 
-    public boolean isOver() {
-        return isOver;
-    }
-
-    public Integer getAttempts() {
-        return attempts;
-    }
 }

@@ -1,11 +1,9 @@
 package com.telegram.telegrambot.service;
 
 import com.telegram.telegrambot.model.Game;
+import com.telegram.telegrambot.repository.GameRepository;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class GameService {
@@ -13,12 +11,15 @@ public class GameService {
     private static final String START = "/start";
     private static final String STOP = "/stop";
     private static final String HELP = "/help";
-    Map<String, Game> activeGames = new HashMap<>();
+    GameRepository repository;
 
-    public String handleMessage(Update update) {
+    public GameService(GameRepository repository) {
+        this.repository = repository;
+    }
+
+    public String makeAnswer(Update update) {
         String id = getId(update);
         String text = getText(update);
-
         return switch (text) {
             case START -> startGameAndGetMessage(id);
             case STOP -> stopGameAndGetMessage(id);
@@ -27,52 +28,38 @@ public class GameService {
         };
     }
 
-    private boolean hasActiveGame(String id) {
-        return activeGames.containsKey(id);
-    }
 
     private String startGameAndGetMessage(String id) {
-        Game game = new Game();
-        activeGames.put(id, game);
+        repository.addGame(id, new Game());
         return "Choose the range of guessing. Use integer value";
     }
 
-    private int validateInput(String input) {
-        return Integer.parseInt(input);
-    }
 
     private String playGameAndGetProgressMessage(String id, String number) {
-
         String progressMessage;
-
-        if (!hasActiveGame(id)) {
-            progressMessage = "Make sure you've started the game via /start";
-
+        Game game = repository.getGame(id);
+        if (game == null) {
+            return "Make sure you've started the game via /start";
+        }
+        int num = Integer.parseInt(number);
+        if (!game.areAttemptsSet()) {
+            progressMessage = "Lets' go! You got " + game.calculateAndSetAttempts(num) + " attempts. Make a guess";
         } else {
-            int num = validateInput(number);
-
-            Game game = activeGames.get(id);
-            if (game.getAttempts() == null) {
-                progressMessage = "Lets' go! You got " + game.calculateAndSetAttempts(num) + " attempts. Make a guess";
-            } else {
-                progressMessage = game.getResultOfGuess(num);
-                if (game.isOver()) {
-                    activeGames.remove(id);
-                }
+            progressMessage = game.getResultOfGuess(num);
+            if (game.isOver()) {
+                repository.getGame(id);
             }
         }
         return progressMessage;
-
     }
 
 
     private String stopGameAndGetMessage(String id) {
-        if (hasActiveGame(id)) {
-            activeGames.remove(id);
+        if (repository.deleteGame(id)) {
             return "Game has been stopped";
-        } else {
-            return "You don't have an active game";
         }
+        return "You don't have an active game";
+
     }
 
     private String sendHelp() {
