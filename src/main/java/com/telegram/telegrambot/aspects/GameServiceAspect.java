@@ -16,7 +16,7 @@ import java.util.logging.Logger;
 public class GameServiceAspect {
     Logger logger = Logger.getLogger(GameService.class.getName());
 
-    @Pointcut("execution(public String com.telegram.telegrambot.service.GameService.handleMessage(..))")
+    @Pointcut("execution(public String com.telegram.telegrambot.service.GameService.makeAnswer(..))")
     public void handleMessagePoint() {
     }
 
