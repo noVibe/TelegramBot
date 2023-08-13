@@ -5,12 +5,14 @@ import com.telegram.telegrambot.repository.GameRepository;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import static com.telegram.telegrambot.service.Messages.*;
+
 @Service
 public class GameService {
 
-    private static final String START = "/start";
-    private static final String STOP = "/stop";
-    private static final String HELP = "/help";
+    private static final String START_COMMAND = "/start";
+    private static final String STOP_COMMAND = "/stop";
+    private static final String HELP_COMMAND = "/help";
     GameRepository repository;
 
     public GameService(GameRepository repository) {
@@ -21,9 +23,9 @@ public class GameService {
         String id = getId(update);
         String text = getText(update);
         return switch (text) {
-            case START -> startGameAndGetMessage(id);
-            case STOP -> stopGameAndGetMessage(id);
-            case HELP -> sendHelp();
+            case START_COMMAND -> startGameAndGetMessage(id);
+            case STOP_COMMAND -> stopGameAndGetMessage(id);
+            case HELP_COMMAND -> sendHelp();
             default -> playGameAndGetProgressMessage(id, text);
         };
     }
@@ -31,7 +33,7 @@ public class GameService {
 
     private String startGameAndGetMessage(String id) {
         repository.addGame(id, new Game());
-        return "Choose the range of guessing. Use integer value";
+        return START_GAME.message;
     }
 
 
@@ -39,16 +41,17 @@ public class GameService {
         String progressMessage;
         Game game = repository.getGame(id);
         if (game == null) {
-            return "Make sure you've started the game via /start";
+            return ACTIVE_GAME_NOT_FOUND.message;
         }
         int num = Integer.parseInt(number);
-        if (!game.areAttemptsSet()) {
-            progressMessage = "Lets' go! You got " + game.calculateAndSetAttempts(num) + " attempts. Make a guess";
-        } else {
+        if (game.isInitialized()) {
             progressMessage = game.getResultOfGuess(num);
             if (game.isOver()) {
-                repository.getGame(id);
+                repository.deleteGame(id);
             }
+        } else {
+            game.initialize(num);
+            progressMessage = "Lets' go! You got " + game.getAttempts() + " attempts. Make a guess";
         }
         return progressMessage;
     }
@@ -56,25 +59,19 @@ public class GameService {
 
     private String stopGameAndGetMessage(String id) {
         if (repository.deleteGame(id)) {
-            return "Game has been stopped";
+            return STOP_GAME.message;
         }
-        return "You don't have an active game";
+        return NOTHING_TO_REMOVE.message;
 
     }
 
     private String sendHelp() {
-        return """
-                Use commands:
-                /start - start a new game or restart
-                /stop - stop active game
-                During a game just send an integer value.
-                If you can't win, read about binary search algorithm :)
-                """;
+        return HELP.message;
     }
 
 
     public String getId(Update update) {
-        return String.valueOf(update.getMessage().getChat().getId());
+        return String.valueOf(update.getMessage().getFrom().getId());
     }
 
     public String getText(Update update) {

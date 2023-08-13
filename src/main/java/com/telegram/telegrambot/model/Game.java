@@ -6,13 +6,12 @@ public class Game {
     private Integer attempts;
     private int guessedNumber;
 
-    public int calculateAndSetAttempts(int range) {
+    public void initialize(int range) {
         guessedNumber = new Random().nextInt(1, range == Integer.MAX_VALUE ? range : range + 1);
         attempts = range <= 2 ? range : (int) Math.ceil(Math.log(range) / Math.log(2));
-        return attempts;
     }
 
-    public boolean areAttemptsSet() {
+    public boolean isInitialized() {
         return attempts != null;
     }
 
@@ -42,4 +41,7 @@ public class Game {
         }
     }
 
+    public Integer getAttempts() {
+        return attempts;
+    }
 }
