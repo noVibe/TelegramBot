@@ -1,6 +1,6 @@
 package com.telegram.telegrambot.aspects;
 
-import com.telegram.telegrambot.service.GameService;
+import com.telegram.telegrambot.service.InteractionService;
 import com.telegram.telegrambot.service.Messages;
 import com.telegram.telegrambot.service.UpdateService;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -16,14 +16,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @Component
 @Aspect
 public class GameServiceAspect {
-    private final Logger logger = LoggerFactory.getLogger(GameService.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(InteractionService.class.getName());
     private final UpdateService updateService;
 
     public GameServiceAspect(UpdateService updateService) {
         this.updateService = updateService;
     }
 
-    @Pointcut("execution(public String com.telegram.telegrambot.service.GameService.makeAnswer(..))")
+    @Pointcut("execution(public String com.telegram.telegrambot.service.InteractionService.makeAnswer(..))")
     public void handleMessagePoint() {
     }
 

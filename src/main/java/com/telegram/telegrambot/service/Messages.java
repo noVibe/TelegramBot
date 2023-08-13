@@ -4,7 +4,7 @@ public enum Messages {
 
     START_GAME("Choose the range of guessing. Use integer value"),
     STOP_GAME("Game has been stopped"),
-    ACTIVE_GAME_NOT_FOUND("Make sure you've started the game via /start"),
+    GAME_NOT_FOUND("Make sure you've started the game via /start"),
     NOTHING_TO_REMOVE("You don't have an active game"),
     INVALID_INPUT("Invalid input! Try /help if you stuck"),
     HELP("""

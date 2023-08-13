@@ -1,77 +1,40 @@
 package com.telegram.telegrambot.service;
 
 import com.telegram.telegrambot.model.Game;
-import com.telegram.telegrambot.repository.GameRepository;
-import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Update;
+import org.springframework.stereotype.Component;
 
-import static com.telegram.telegrambot.service.Messages.*;
+import java.util.Random;
 
-@Service
+@Component
 public class GameService {
-
-    private static final String START_COMMAND = "/start";
-    private static final String STOP_COMMAND = "/stop";
-    private static final String HELP_COMMAND = "/help";
-    private final GameRepository repository;
-    private final UpdateService updateService;
-
-    public GameService(GameRepository repository, UpdateService updateService) {
-        this.repository = repository;
-        this.updateService = updateService;
+    public void initializeGame(Game game, int range) {
+        game.setAttempts(calculateAttemptsAmount(range));
+        game.setGuessedNumber(getRandomNumber(range));
+        game.setMessage("Lets' go! You got " + game.getAttempts() + " attempts. Make a guess");
     }
 
-    public String makeAnswer(Update update) {
-        String id = updateService.getUserId(update);
-        String command = updateService.getTextMessage(update);
-        return switch (command) {
-            case START_COMMAND -> startGameAndGetMessage(id);
-            case STOP_COMMAND -> stopGameAndGetMessage(id);
-            case HELP_COMMAND -> sendHelp();
-            default -> playGameAndGetProgressMessage(id, command);
-        };
-    }
-
-
-    private String startGameAndGetMessage(String id) {
-        repository.addGame(id, new Game());
-        return START_GAME.message;
+    public void play(Game game, int number) {
+        String message;
+        game.decreaseAttempts();
+        int guessedNumber = game.getGuessedNumber();
+        if (number == guessedNumber) {
+            game.finish();
+            message = "You guessed! It's " + guessedNumber + "!";
+        } else if (game.isOver()) {
+            message = "No attempts left. You lost! Guessed number was " + guessedNumber;
+        } else if (number < guessedNumber) {
+            message = "Guessed number is bigger!\n" + game.getAttempts() + " attempts left.";
+        } else
+            message = "Guessed number is smaller!\n" + game.getAttempts() + " attempts left.";
+        game.setMessage(message);
     }
 
 
-    private String playGameAndGetProgressMessage(String id, String number) {
-        String progressMessage;
-        Game game = repository.getGame(id);
-        if (game == null) {
-            return ACTIVE_GAME_NOT_FOUND.message;
-        }
-        int num = Integer.parseInt(number);
-        if (game.isInitialized()) {
-            progressMessage = game.getResultOfGuess(num);
-            if (game.isOver()) {
-                repository.deleteGame(id);
-            }
-        } else {
-            game.initialize(num);
-            progressMessage = "Lets' go! You got " + game.getAttempts() + " attempts. Make a guess";
-        }
-        return progressMessage;
+    private int calculateAttemptsAmount(int range) {
+        return range <= 2 ? range : (int) Math.ceil(Math.log(range) / Math.log(2));
     }
 
-
-    private String stopGameAndGetMessage(String id) {
-        if (repository.deleteGame(id)) {
-            return STOP_GAME.message;
-        }
-        return NOTHING_TO_REMOVE.message;
-
+    private int getRandomNumber(int range) {
+        return new Random().nextInt(1, range == Integer.MAX_VALUE ? range : range + 1);
     }
-
-    private String sendHelp() {
-        return HELP.message;
-    }
-
 }
-
-
-

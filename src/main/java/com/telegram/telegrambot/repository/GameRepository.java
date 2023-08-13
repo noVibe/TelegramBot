@@ -17,6 +17,6 @@ public class GameRepository {
         return activeGames.get(id);
     }
     public boolean deleteGame(String id) {
-        return null == activeGames.remove(id);
+        return null != activeGames.remove(id);
     }
 }
