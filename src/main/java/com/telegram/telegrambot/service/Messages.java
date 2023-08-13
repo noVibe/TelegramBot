@@ -7,6 +7,7 @@ public enum Messages {
     GAME_NOT_FOUND("Make sure you've started the game via /start"),
     NOTHING_TO_REMOVE("You don't have an active game"),
     INVALID_INPUT("Invalid input! Try /help if you stuck"),
+    NEGATIVE_VALUE("Number must be positive!"),
     HELP("""
             Use commands:
             /start - start a new game or restart
