@@ -40,7 +40,6 @@ public class GameServiceAspect {
             result = (String) joinPoint.proceed();
         } catch (Throwable e) {
             result = Messages.INVALID_INPUT.message;
-            e.printStackTrace();
             logger.info(e.getMessage());
         }
         logger.info("Answer for {}:\n {}", username, result);
