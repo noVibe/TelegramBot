@@ -13,20 +13,22 @@ public class GameService {
     private static final String START_COMMAND = "/start";
     private static final String STOP_COMMAND = "/stop";
     private static final String HELP_COMMAND = "/help";
-    GameRepository repository;
+    private final GameRepository repository;
+    private final UpdateService updateService;
 
-    public GameService(GameRepository repository) {
+    public GameService(GameRepository repository, UpdateService updateService) {
         this.repository = repository;
+        this.updateService = updateService;
     }
 
     public String makeAnswer(Update update) {
-        String id = getId(update);
-        String text = getText(update);
-        return switch (text) {
+        String id = updateService.getUserId(update);
+        String command = updateService.getTextMessage(update);
+        return switch (command) {
             case START_COMMAND -> startGameAndGetMessage(id);
             case STOP_COMMAND -> stopGameAndGetMessage(id);
             case HELP_COMMAND -> sendHelp();
-            default -> playGameAndGetProgressMessage(id, text);
+            default -> playGameAndGetProgressMessage(id, command);
         };
     }
 
@@ -69,14 +71,7 @@ public class GameService {
         return HELP.message;
     }
 
-
-    public String getId(Update update) {
-        return String.valueOf(update.getMessage().getFrom().getId());
-    }
-
-    public String getText(Update update) {
-        return update.getMessage().getText();
-    }
-
 }
+
+
 
