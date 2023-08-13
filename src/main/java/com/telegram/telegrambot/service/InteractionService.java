@@ -42,11 +42,14 @@ public class InteractionService {
 
 
     private String playGameAndGetProgressMessage(String id, String number) {
+        int inputNumber = Integer.parseInt(number);
+        if (inputNumber < 1) {
+            return NEGATIVE_VALUE.message;
+        }
         Game game = repository.getGame(id);
         if (game == null) {
             return GAME_NOT_FOUND.message;
         }
-        int inputNumber = Integer.parseInt(number);
         if (game.isInitialized()) {
             gameService.play(game, inputNumber);
             if (game.isOver()) {

@@ -3,7 +3,6 @@ package com.telegram.telegrambot.model;
 public class Game {
     private Integer attempts;
     private int guessedNumber;
-
     private String message;
 
 
@@ -18,6 +17,7 @@ public class Game {
     public void decreaseAttempts() {
         attempts--;
     }
+
     public void finish() {
         attempts = 0;
     }
